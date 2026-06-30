@@ -5,7 +5,12 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CallbackModule } from './callback.module';
 import { CallbackTransaction } from './entities/callback-transaction.entity';
+import { MtnSubscriptionBatch } from './entities/mtn-subscription-batch.entity';
+import { MtnSubscriptionQueue } from './entities/mtn-subscription-queue.entity';
+import { MtnTokenCache } from './entities/mtn-token-cache.entity';
+import { SubscriptionMisdn } from './entities/subscription-misdn.entity';
 import { LoggingModule } from './logging/logging.module';
+import { MtnModule } from './mtn/mtn.module';
 
 function envBool(
   config: ConfigService,
@@ -31,7 +36,13 @@ function envBool(
           username: config.get<string>('DB_USERNAME'),
           password: config.get<string>('DB_PASSWORD'),
           database: config.get<string>('DB_DATABASE'),
-          entities: [CallbackTransaction],
+          entities: [
+            CallbackTransaction,
+            MtnSubscriptionBatch,
+            MtnSubscriptionQueue,
+            MtnTokenCache,
+            SubscriptionMisdn,
+          ],
           synchronize: false,
           logging: envBool(config, 'DB_LOGGING'),
           ssl: ssl
@@ -48,6 +59,7 @@ function envBool(
       inject: [ConfigService],
     }),
     CallbackModule,
+    MtnModule,
     LoggingModule,
   ],
   controllers: [AppController],

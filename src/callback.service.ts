@@ -40,17 +40,6 @@ function todayDateString(): string {
   return `${y}-${m}-${day}`;
 }
 
-function isDuplicateRequestNoError(e: unknown): boolean {
-  if (!e || typeof e !== 'object') return false;
-  const code =
-    'code' in e
-      ? (e as { code?: string }).code
-      : 'driverError' in e
-        ? (e as { driverError?: { code?: string } }).driverError?.code
-        : undefined;
-  return code === '23505';
-}
-
 @Injectable()
 export class CallbackService {
   private readonly logger = new Logger(CallbackService.name);
@@ -119,19 +108,6 @@ export class CallbackService {
         const saved = await this.repo.save(entity);
         inserted.push(saved.id);
       } catch (e) {
-        if (isDuplicateRequestNoError(e) && entity.requestNo) {
-          const existing = await this.repo.findOne({
-            where: { requestNo: entity.requestNo },
-          });
-          if (existing) {
-            this.logger.debug(
-              `Duplicate requestNo=${entity.requestNo}, using existing row id=${existing.id}`,
-            );
-            inserted.push(existing.id);
-            continue;
-          }
-        }
-
         this.logger.error(
           `Insert failed for requestNo=${entity.requestNo}`,
           e,
